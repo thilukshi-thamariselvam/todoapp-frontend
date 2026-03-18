@@ -1,3 +1,4 @@
+import api from "./api";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Table,
@@ -15,50 +16,60 @@ export default function App() {
   const [todos, setTodos] = useState([]);
   const [editingId, setEditingId] = useState(null);
 
-  useEffect(() => {
-    console.log("Todos changed:", todos);
-  }, [todos]);
-
   const inputRef = useRef(null);
 
+  useEffect(() => {
+    api.get("/").then((res) => setTodos(res.data));
+  }, []);
+
   const completedCount = useMemo(() => {
-    return todos.filter(todo => todo.completed).length;
+    return todos.filter((todo) => todo.completed).length;
   }, [todos]);
 
-  const toggleTodo = useCallback((id, completed) => {
-  setTodos((currentTodos) =>
-    currentTodos.map((todo) =>
-      todo.id === id ? { ...todo, completed } : todo
-    )
-  );
-}, [setTodos]);
 
-const deleteTodo = useCallback((id) => {
-  setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
-}, [setTodos]);
+  const toggleTodo = useCallback((id, completed) => {
+    api
+      .put(`/${id}`, { completed, title: todos.find((t) => t.id === id).title })
+      .then((res) => {
+        setTodos((currentTodos) =>
+          currentTodos.map((todo) => (todo.id === id ? res.data : todo))
+        );
+      });
+  }, [todos]);
+
+
+  const deleteTodo = useCallback((id) => {
+    api.delete(`/${id}`).then(() => {
+      setTodos((currentTodos) => currentTodos.filter((todo) => todo.id !== id));
+    });
+  }, []);
+
 
   function handleSubmit(e) {
     e.preventDefault();
     if (newItem.trim() === "") return;
 
     if (editingId !== null) {
-      setTodos((currentTodos) =>
-        currentTodos.map((todo) =>
-          todo.id === editingId ? { ...todo, title: newItem } : todo
-        )
-      );
+      api
+        .put(`/${editingId}`, { title: newItem, completed: todos.find((t) => t.id === editingId).completed })
+        .then((res) => {
+          setTodos((currentTodos) =>
+            currentTodos.map((todo) => (todo.id === editingId ? res.data : todo))
+          );
+          setEditingId(null);
+          setNewItem("");
+          inputRef.current.focus();
+        });
     } else {
-      setTodos((currentTodos) => [
-        ...currentTodos,
-        { id: crypto.randomUUID(), title: newItem, completed: false },
-      ]);
+      api
+        .post("/", { title: newItem, completed: false })
+        .then((res) => {
+          setTodos((currentTodos) => [...currentTodos, res.data]);
+          setNewItem("");
+          inputRef.current.focus();
+        });
     }
-
-    setNewItem("");
-    setEditingId(null);
-    inputRef.current.focus();
   }
-
 
   return (
     <div className="container">
