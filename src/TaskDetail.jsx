@@ -7,7 +7,7 @@ export default function TaskDetail({ todo, setTodos, setEditingId }) {
   function handleSave() {
     api.put(`/${todo.id}`, { ...todo, title }).then((res) => {
       setTodos((current) =>
-        current.map((t) => (t.id === todo.id ? res.data : t))
+        current.map((t) => (t.id === todo.id ? res.data.data : t)) 
       );
       setEditingId(null);
     });

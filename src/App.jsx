@@ -12,7 +12,10 @@ export default function App() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    api.get("/").then((res) => setTodos(res.data));
+    api.get("/").then((res) => {
+      console.log("API response:", res.data);
+      setTodos(res.data.data);
+    });
   }, []);
 
   const completedCount = useMemo(() => {
@@ -25,7 +28,7 @@ export default function App() {
       const todo = todos.find((t) => t.id === id);
       api.put(`/${id}`, { ...todo, completed }).then((res) => {
         setTodos((current) =>
-          current.map((t) => (t.id === id ? res.data : t))
+          current.map((t) => (t.id === id ? res.data.data : t))
         );
       });
     },
@@ -48,7 +51,7 @@ export default function App() {
         .put(`/${editingId}`, { ...todo, title: newItem })
         .then((res) => {
           setTodos((current) =>
-            current.map((t) => (t.id === editingId ? res.data : t))
+            current.map((t) => (t.id === editingId ? res.data.data : t))
           );
           setEditingId(null);
           setNewItem("");
@@ -58,7 +61,7 @@ export default function App() {
       api
         .post("/", { title: newItem, completed: false })
         .then((res) => {
-          setTodos((current) => [...current, res.data]);
+          setTodos((current) => [...current, res.data.data]);
           setNewItem("");
           inputRef.current.focus();
         });
@@ -81,7 +84,7 @@ export default function App() {
       />
 
       {/* Right Pane: Task Detail */}
-      {editingId && (
+      {editingId && todos.find((t) => t.id === editingId) && (
         <TaskDetail
           todo={todos.find((t) => t.id === editingId)}
           setTodos={setTodos}
