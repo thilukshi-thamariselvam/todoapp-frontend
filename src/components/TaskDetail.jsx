@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { TextField, Button, Box } from "@mui/material";
-import api from "../../api"; 
+import api from "../api";
 
 export default function TaskDetail({ todo, setTodos, setEditingId }) {
   const [title, setTitle] = useState(todo.title);
