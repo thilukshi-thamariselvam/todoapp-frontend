@@ -54,11 +54,21 @@ export default function TodoPage() {
     });
   };
 
-  const handleToggle = (id, newStatus) => {
+  const handleToggle = (id, isCompleted) => {
     const todo = todos.find(t => t.id === id);
-    api.put(`/${id}`, { ...todo, status: newStatus }).then((res) => {
-      setTodos(current => current.map(t => t.id === id ? res.data.data : t));
-    });
+    setTodos(current =>
+      current.map(t => (t.id === id ? { ...t, completed: isCompleted } : t))
+    );
+
+    api.put(`/${id}`, { ...todo, completed: isCompleted })
+      .then((res) => {
+      })
+      .catch((err) => {
+        console.error("Failed to update", err);
+        setTodos(current =>
+          current.map(t => (t.id === id ? { ...t, completed: !isCompleted } : t))
+        );
+      });
   };
 
   return (

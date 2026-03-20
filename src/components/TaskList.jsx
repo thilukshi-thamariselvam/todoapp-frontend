@@ -26,6 +26,8 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
         day: 'numeric'
     });
 
+    const completedCount = todos.filter(t => t.completed).length;
+
     return (
         <Box sx={{ width: '100%' }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
@@ -40,12 +42,19 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                         color="primary"
                         sx={{ fontWeight: 'medium' }}
                     />
+
+                    <Chip
+                        label={`${completedCount} task${completedCount !== 1 ? "s" : ""} completed`}
+                        color="secondary"
+                        variant="outlined"
+                        size="small"
+                    />
                 </Box>
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={onAddClick}
-                    sx={{ height: 'fit-content' }} // Aligns button nicely
+                    sx={{ height: 'fit-content' }}
                 >
                     Add Task
                 </Button>
@@ -76,12 +85,12 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                                     cursor: 'pointer',
                                     '&:hover': { backgroundColor: '#f5f5f5' }
                                 }}
-                                onClick={() => onEditClick(todo)} // Click row to edit
+                                onClick={() => onEditClick(todo)}
                             >
                                 <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
                                     <Checkbox
-                                        checked={todo.status === 'COMPLETED'}
-                                        onChange={(e) => onToggle(todo.id, e.target.checked ? 'COMPLETED' : 'PENDING')}
+                                        checked={todo.completed}
+                                        onChange={(e) => onToggle(todo.id, e.target.checked)}
                                     />
                                 </TableCell>
 
@@ -110,7 +119,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
 
                                 <TableCell align="center">
                                     <Chip
-                                        label={todo.status?.replace('_', ' ')} // Format "IN_PROGRESS" to "IN PROGRESS"
+                                        label={todo.status?.replace('_', ' ')}
                                         size="small"
                                         variant="outlined"
                                     />
