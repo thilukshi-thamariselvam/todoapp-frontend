@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, AppBar, Toolbar, Typography, Container } from "@mui/material";
 import api from "../api";
-import TaskModal from "../components/TaskModal"; 
+import TaskModal from "../components/TaskModal";
 import TaskList from "../components/TaskList";
 
 export default function TodoPage() {
   const [todos, setTodos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTodo, setEditingTodo] = useState(null); 
+  const [editingTodo, setEditingTodo] = useState(null);
 
   useEffect(() => {
     fetchTodos();
@@ -20,7 +20,7 @@ export default function TodoPage() {
   };
 
   const handleOpenModal = (todo = null) => {
-    setEditingTodo(todo); 
+    setEditingTodo(todo);
     setIsModalOpen(true);
   };
 
@@ -31,8 +31,8 @@ export default function TodoPage() {
 
   const handleSubmit = (values) => {
     const cleanValues = {
-        ...values,
-        subTasks: values.subTasks.filter(st => st.title.trim() !== "")
+      ...values,
+      subTasks: values.subTasks.filter(st => st.title.trim() !== "")
     };
 
     if (editingTodo) {
@@ -53,31 +53,39 @@ export default function TodoPage() {
   };
 
   const handleToggle = (id, newStatus) => {
-     const todo = todos.find(t => t.id === id);
-     api.put(`/${id}`, { ...todo, status: newStatus }).then((res) => {
-       setTodos(current => current.map(t => t.id === id ? res.data.data : t));
-     });
+    const todo = todos.find(t => t.id === id);
+    api.put(`/${id}`, { ...todo, status: newStatus }).then((res) => {
+      setTodos(current => current.map(t => t.id === id ? res.data.data : t));
+    });
   };
 
   return (
-    <div className="app-container" style={{ display: 'flex', justifyContent: 'center' }}>
-      <Box sx={{ width: '100%', maxWidth: 1200 }}>
-        <TaskList 
-          todos={todos} 
-          onAddClick={() => handleOpenModal()} 
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar position="static" color="primary" elevation={1}>
+        <Toolbar>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
+            TO-DO APP
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        <TaskList
+          todos={todos}
+          onAddClick={() => handleOpenModal()}
           onEditClick={(todo) => handleOpenModal(todo)}
           onDelete={handleDelete}
           onToggle={handleToggle}
         />
 
-        <TaskModal 
-          open={isModalOpen} 
-          onClose={handleCloseModal} 
+        <TaskModal
+          open={isModalOpen}
+          onClose={handleCloseModal}
           onSubmit={handleSubmit}
           initialValues={editingTodo}
           mode={editingTodo ? "edit" : "add"}
         />
-      </Box>
-    </div>
+      </Container>
+    </Box>
   );
 }
