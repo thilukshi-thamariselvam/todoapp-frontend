@@ -6,7 +6,20 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import App from "./App.jsx";
 
 const darkTheme = createTheme({
-  palette: { mode: "light" },
+  palette: {
+    mode: "light",
+    primary: {
+      main: "#FFC107", 
+      contrastText: "#000000", 
+    },
+    background: {
+      default: "#ffffff", 
+      paper: "#ffffff", 
+    },
+    text: {
+      primary: "#000000", 
+    },
+  },
   typography: {
     fontFamily: 'Poppins, sans-serif',
   },

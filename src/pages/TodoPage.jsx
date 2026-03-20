@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, AppBar, Toolbar, Typography, Container } from "@mui/material";
+import { Box, AppBar, Toolbar, Typography, Container, IconButton } from "@mui/material";
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import api from "../api";
 import TaskModal from "../components/TaskModal";
 import TaskList from "../components/TaskList";
@@ -61,11 +63,28 @@ export default function TodoPage() {
 
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="primary" elevation={1}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-            TO-DO APP
-          </Typography>
+      <AppBar position="static" color="primary" elevation={0} sx={{ borderBottom: '1px solid rgba(0, 0, 0, 0.12)' }}>
+        <Toolbar sx={{ py: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TaskAltIcon sx={{ fontSize: 32 }} />
+            <Typography
+              variant="h5"
+              component="div"
+              sx={{
+                fontWeight: 800,
+                letterSpacing: 1.5,
+                textTransform: 'uppercase'
+              }}
+            >
+              TODO APP
+            </Typography>
+          </Box>
+
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton color="inherit">
+            <AccountCircleIcon sx={{ fontSize: 32 }} />
+          </IconButton>
+
         </Toolbar>
       </AppBar>
 
