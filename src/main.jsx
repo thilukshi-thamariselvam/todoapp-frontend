@@ -7,6 +7,9 @@ import App from "./App.jsx";
 
 const darkTheme = createTheme({
   palette: { mode: "light" },
+  typography: {
+    fontFamily: 'Poppins, sans-serif',
+  },
 });
 
 createRoot(document.getElementById("root")).render(
