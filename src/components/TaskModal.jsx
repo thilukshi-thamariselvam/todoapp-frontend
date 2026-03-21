@@ -1,7 +1,7 @@
 import React from "react";
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Grid, TextField, Select, MenuItem, FormControl, 
+  Button, Grid, TextField, Select, MenuItem, FormControl,
   InputLabel, Switch, FormControlLabel, Box, IconButton, Typography
 } from "@mui/material";
 import { Formik, Form, Field, FieldArray } from "formik";
@@ -14,7 +14,7 @@ import { todoSchema } from "../schemas/todoSchema";
 import { PRIORITY_OPTIONS, STATUS_OPTIONS, LIST_CATEGORY_OPTIONS } from "../constants/todoConstants";
 
 export default function TaskModal({ open, onClose, onSubmit, initialValues, mode = "add" }) {
-  
+
   const defaultValues = {
     title: "",
     description: "",
@@ -33,7 +33,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
       <DialogTitle>
         {mode === "add" ? "Create New Task" : "Edit Task"}
       </DialogTitle>
-      
+
       <Formik
         initialValues={initialValues || defaultValues}
         validationSchema={todoSchema}
@@ -48,7 +48,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
           <Form>
             <DialogContent dividers>
               <Grid container spacing={2}>
-                
+
                 <Grid size={{ xs: 12 }}>
                   <Field
                     name="title"
@@ -80,12 +80,12 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                   />
                 </Grid>
                 <Grid size={{ xs: 12, sm: 6 }}>
-                   <TimePicker
-                      label="Reminder Time"
-                      value={values.reminder}
-                      onChange={(time) => setFieldValue("reminder", time)}
-                      slotProps={{ textField: { fullWidth: true, variant: "outlined" } }}
-                    />
+                  <TimePicker
+                    label="Reminder Time"
+                    value={values.reminder}
+                    onChange={(time) => setFieldValue("reminder", time)}
+                    slotProps={{ textField: { fullWidth: true, variant: "outlined" } }}
+                  />
                 </Grid>
 
                 <Grid size={{ xs: 12, sm: 6 }}>
@@ -116,17 +116,23 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                 </Grid>
 
                 <Grid size={{ xs: 12 }}>
-                  <FormControl fullWidth>
-                    <InputLabel>List Category *</InputLabel>
-                    <Select
-                      name="listCategory"
-                      value={values.listCategory}
-                      onChange={handleChange}
-                      label="List Category *"
-                    >
-                      {LIST_CATEGORY_OPTIONS.map(opt => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                  <Autocomplete
+                    options={LIST_CATEGORY_OPTIONS.map(opt => opt.label)} // Just show labels
+                    value={LIST_CATEGORY_OPTIONS.find(opt => opt.value === values.listCategory)?.label || ""}
+                    onChange={(event, newValue) => {
+                      const selectedOption = LIST_CATEGORY_OPTIONS.find(opt => opt.label === newValue);
+                      setFieldValue("listCategory", selectedOption ? selectedOption.value : "");
+                    }}
+                    freeSolo 
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="List Category *"
+                        error={touched.listCategory && Boolean(errors.listCategory)}
+                        helperText={touched.listCategory && errors.listCategory}
+                      />
+                    )}
+                  />
                 </Grid>
 
                 <Grid size={{ xs: 12 }}>
@@ -143,7 +149,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                 </Grid>
 
                 <Grid size={{ xs: 12 }}>
-                   <FormControlLabel
+                  <FormControlLabel
                     control={
                       <Switch
                         checked={values.isPinned}
@@ -172,8 +178,8 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                             </IconButton>
                           </Box>
                         ))}
-                        <Button 
-                          startIcon={<AddIcon />} 
+                        <Button
+                          startIcon={<AddIcon />}
                           onClick={() => push({ title: '', isCompleted: false })}
                           variant="outlined"
                           size="small"
