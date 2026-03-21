@@ -8,6 +8,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import PushPinIcon from '@mui/icons-material/PushPin';
 
 
 const priorityColor = {
@@ -95,15 +96,22 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                                 </TableCell>
 
                                 <TableCell component="th" scope="row">
-                                    <Typography
-                                        variant="body1"
-                                        fontWeight="500"
-                                        sx={{ textDecoration: todo.status === 'COMPLETED' ? 'line-through' : 'none' }}
-                                    >
-                                        {todo.title}
-                                    </Typography>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Typography
+                                            variant="body1"
+                                            fontWeight="500"
+                                            sx={{ textDecoration: todo.status === 'COMPLETED' ? 'line-through' : 'none' }}
+                                        >
+                                            {todo.title}
+                                        </Typography>
+
+                                        {todo.isPinned && (
+                                            <PushPinIcon sx={{ fontSize: 18 }} color="warning" />
+                                        )}
+                                    </Box>
+
                                     {todo.description && (
-                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', ml: 0.5 }}>
                                             {todo.description.substring(0, 40)}...
                                         </Typography>
                                     )}

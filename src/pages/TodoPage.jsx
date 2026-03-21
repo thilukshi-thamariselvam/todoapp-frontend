@@ -39,11 +39,23 @@ export default function TodoPage() {
 
     if (editingTodo) {
       api.put(`/${editingTodo.id}`, cleanValues).then((res) => {
-        setTodos(current => current.map(t => t.id === editingTodo.id ? res.data.data : t));
+        setTodos(current => {
+          const updatedList = current.map(t => t.id === editingTodo.id ? res.data.data : t);
+          return updatedList.sort((a, b) => {
+            if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+            return new Date(a.dueDate) - new Date(b.dueDate);
+          });
+        });
       });
     } else {
       api.post("/", cleanValues).then((res) => {
-        setTodos(current => [...current, res.data.data]);
+        setTodos(current => {
+          const newList = [...current, res.data.data];
+          return newList.sort((a, b) => {
+            if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+            return new Date(a.dueDate) - new Date(b.dueDate);
+          });
+        });
       });
     }
   };
