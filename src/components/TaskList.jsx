@@ -26,7 +26,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
         day: 'numeric'
     });
 
-    const completedCount = todos.filter(t => t.completed).length;
+    const completedCount = todos.filter(t => t.status === 'COMPLETED').length;
 
     return (
         <Box sx={{ width: '100%' }}>

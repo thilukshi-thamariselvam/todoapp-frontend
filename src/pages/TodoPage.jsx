@@ -55,18 +55,23 @@ export default function TodoPage() {
   };
 
   const handleToggle = (id, isCompleted) => {
+    const newStatus = isCompleted ? 'COMPLETED' : 'PENDING';
     const todo = todos.find(t => t.id === id);
+
     setTodos(current =>
-      current.map(t => (t.id === id ? { ...t, completed: isCompleted } : t))
+      current.map(t => (t.id === id ? { ...t, status: newStatus } : t))
     );
 
-    api.put(`/${id}`, { ...todo, completed: isCompleted })
-      .then((res) => {
-      })
-      .catch((err) => {
-        console.error("Failed to update", err);
+    const payload = {
+      title: todo.title,
+      status: newStatus,
+      priority: todo.priority,
+    };
+
+    api.put(`/${id}`, { ...todo, status: newStatus })
+      .catch(err => {
         setTodos(current =>
-          current.map(t => (t.id === id ? { ...t, completed: !isCompleted } : t))
+          current.map(t => (t.id === id ? { ...t, status: todo.status } : t))
         );
       });
   };
