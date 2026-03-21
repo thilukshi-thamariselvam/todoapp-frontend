@@ -90,7 +90,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                             >
                                 <TableCell padding="checkbox" onClick={(e) => e.stopPropagation()}>
                                     <Checkbox
-                                        checked={todo.completed}
+                                        checked={todo.status === 'COMPLETED'}
                                         onChange={(e) => onToggle(todo.id, e.target.checked)}
                                     />
                                 </TableCell>
