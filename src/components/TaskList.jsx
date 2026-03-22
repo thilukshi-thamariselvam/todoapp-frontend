@@ -2,14 +2,14 @@ import React from "react";
 import {
     Box, Typography, Button, Checkbox, IconButton,
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-    Paper, Chip, Tooltip
+    Paper, Chip, Tooltip, Card, CardContent, CardActions,
+    useTheme, useMediaQuery
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PushPinIcon from '@mui/icons-material/PushPin';
-
 
 const priorityColor = {
     LOW: "default",
@@ -19,6 +19,9 @@ const priorityColor = {
 };
 
 export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onToggle }) {
+    
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const today = new Date();
     const formattedDate = today.toLocaleDateString("en-US", {
@@ -29,8 +32,66 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
 
     const completedCount = todos.filter(t => t.status === 'COMPLETED').length;
 
+    if (isMobile) {
+        return (
+            <Box sx={{ width: '100%', p: 1 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                    <Box>
+                        <Typography variant="h5" fontWeight="bold">Today</Typography>
+                        <Chip size="small" icon={<CalendarMonthIcon />} label={formattedDate} variant="outlined" sx={{ mt: 0.5 }} />
+                    </Box>
+                    <Button variant="contained" size="small" startIcon={<AddIcon />} onClick={onAddClick}>Add</Button>
+                </Box>
+
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    {completedCount} task{completedCount !== 1 ? "s" : ""} completed
+                </Typography>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {todos.map((todo) => (
+                        <Card 
+                            key={todo.id} 
+                            sx={{ 
+                                borderLeft: '5px solid', 
+                                borderColor: `${priorityColor[todo.priority] || 'grey'}.main`,
+                                opacity: todo.status === 'COMPLETED' ? 0.7 : 1,
+                                cursor: 'pointer'
+                            }}
+                            onClick={() => onEditClick(todo)}
+                        >
+                            <CardContent>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                    <Typography variant="h6" sx={{ textDecoration: todo.status === 'COMPLETED' ? 'line-through' : 'none', fontSize: '1rem' }}>
+                                        {todo.title}
+                                    </Typography>
+                                    {todo.isPinned && <PushPinIcon sx={{ fontSize: 16 }} color="warning" />}
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                    <Chip label={todo.priority} size="small" color={priorityColor[todo.priority]} />
+                                    <Chip label={todo.status?.replace('_', ' ')} size="small" variant="outlined" />
+                                    {todo.dueDate && <Chip label={new Date(todo.dueDate).toLocaleDateString('en-GB')} size="small" variant="outlined" />}
+                                </Box>
+                            </CardContent>
+                            
+                            <CardActions onClick={(e) => e.stopPropagation()}>
+                                <Checkbox 
+                                    checked={todo.status === 'COMPLETED'}
+                                    onChange={(e) => onToggle(todo.id, e.target.checked)}
+                                />
+                                <Box sx={{ flexGrow: 1 }} />
+                                <IconButton size="small" onClick={() => onEditClick(todo)}><EditIcon fontSize="small"/></IconButton>
+                                <IconButton size="small" color="error" onClick={() => onDelete(todo.id)}><DeleteIcon fontSize="small"/></IconButton>
+                            </CardActions>
+                        </Card>
+                    ))}
+                </Box>
+            </Box>
+        );
+    }
+
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: '100%', p: 2 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Typography variant="h4" fontWeight="bold" color="text.primary">
@@ -61,8 +122,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                 </Button>
             </Box>
 
-            {/* Table Section */}
-            <TableContainer component={Paper} sx={{ maxHeight: '80vh' }}>
+            <TableContainer component={Paper} sx={{ maxHeight: '80vh', border: '1px solid #e0e0e0' }}>
                 <Table stickyHeader aria-label="task table">
                     <TableHead>
                         <TableRow>
