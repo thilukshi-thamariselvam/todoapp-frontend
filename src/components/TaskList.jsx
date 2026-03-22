@@ -134,7 +134,13 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                                 </TableCell>
 
                                 <TableCell align="center">
-                                    {todo.dueDate ? new Date(todo.dueDate).toLocaleDateString() : '-'}
+                                    {todo.dueDate
+                                        ? new Date(todo.dueDate).toLocaleDateString('en-GB', {
+                                            day: '2-digit',
+                                            month: '2-digit',
+                                            year: 'numeric'
+                                        })
+                                        : '-'}
                                 </TableCell>
 
                                 <TableCell align="center">

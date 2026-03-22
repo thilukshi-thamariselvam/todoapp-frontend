@@ -28,6 +28,16 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
     isPinned: false,
   };
 
+  const formattedValues = initialValues ? {
+    ...initialValues,
+    dueDate: initialValues.dueDate ? new Date(initialValues.dueDate) : null,
+    reminder: initialValues.reminder ? new Date(initialValues.reminder) : null,
+    isPinned: initialValues.isPinned || false 
+  } : defaultValues;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>
@@ -35,7 +45,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
       </DialogTitle>
 
       <Formik
-        initialValues={initialValues || defaultValues}
+        initialValues={formattedValues}
         validationSchema={todoSchema}
         enableReinitialize={true}
         onSubmit={(values, { resetForm }) => {
@@ -76,6 +86,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                     label="Due Date"
                     value={values.dueDate}
                     onChange={(date) => setFieldValue("dueDate", date)}
+                    minDate={today}
                     slotProps={{ textField: { fullWidth: true, variant: "outlined" } }}
                   />
                 </Grid>
@@ -117,7 +128,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
 
                 <Grid size={{ xs: 12 }}>
                   <Autocomplete
-                    options={LIST_CATEGORY_OPTIONS.map(opt => opt.label)} // Just show labels
+                    options={LIST_CATEGORY_OPTIONS.map(opt => opt.label)}
                     value={LIST_CATEGORY_OPTIONS.find(opt => opt.value === values.listCategory)?.label || ""}
                     onChange={(event, newValue) => {
                       const selectedOption = LIST_CATEGORY_OPTIONS.find(opt => opt.label === newValue);
