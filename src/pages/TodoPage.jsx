@@ -31,14 +31,31 @@ export default function TodoPage() {
     setEditingTodo(null);
   };
 
+  const formatDateForBackend = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+  };
+
   const handleSubmit = (values) => {
     const cleanValues = {
       ...values,
       subTasks: values.subTasks.filter(st => st.title.trim() !== "")
     };
 
+    const payload = {
+      ...cleanValues,
+      dueDate: formatDateForBackend(cleanValues.dueDate),
+      reminder: formatDateForBackend(cleanValues.reminder),
+    };
+
     if (editingTodo) {
-      api.put(`/${editingTodo.id}`, cleanValues).then((res) => {
+      api.put(`/${editingTodo.id}`, payload).then((res) => {
         setTodos(current => {
           const updatedList = current.map(t => t.id === editingTodo.id ? res.data.data : t);
           return updatedList.sort((a, b) => {
@@ -48,7 +65,7 @@ export default function TodoPage() {
         });
       });
     } else {
-      api.post("/", cleanValues).then((res) => {
+      api.post("/", payload).then((res) => {
         setTodos(current => {
           const newList = [...current, res.data.data];
           return newList.sort((a, b) => {
@@ -73,12 +90,6 @@ export default function TodoPage() {
     setTodos(current =>
       current.map(t => (t.id === id ? { ...t, status: newStatus } : t))
     );
-
-    const payload = {
-      title: todo.title,
-      status: newStatus,
-      priority: todo.priority,
-    };
 
     api.put(`/${id}`, { ...todo, status: newStatus })
       .catch(err => {
