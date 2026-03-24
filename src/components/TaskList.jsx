@@ -40,6 +40,17 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+    // --- DESKTOP FILTER STATE ---
+    const [filterPriority, setFilterPriority] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+    const [filterDueDate, setFilterDueDate] = useState("");
+
+    // --- MOBILE STATE ---
+    const [searchText, setSearchText] = useState("");
+    const [sortBy, setSortBy] = useState("default");
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
     const today = new Date();
     const formattedDate = today.toLocaleDateString("en-US", {
         weekday: "long",
@@ -47,18 +58,23 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
         day: "numeric",
     });
 
-    // --- MOBILE ---
-    const [searchText, setSearchText] = useState("");
-    const [sortBy, setSortBy] = useState("default");
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    const filteredTodos = todos.filter((todo) => {
+        if (filterPriority && todo.priority !== filterPriority) return false;
+        if (filterStatus && todo.status !== filterStatus) return false;
+        if (filterDueDate) {
+            const todoDate = todo.dueDate ? new Date(todo.dueDate).toISOString().split('T')[0] : null;
+            if (todoDate !== filterDueDate) return false;
+        }
+        return true;
+    });
 
-    const filteredTodos = todos.filter((todo) =>
+
+    const mobileFiltered = todos.filter((todo) =>
         todo.title.toLowerCase().includes(searchText.toLowerCase()) ||
         todo.description?.toLowerCase().includes(searchText.toLowerCase())
     );
 
-    const sortedTodos = [...filteredTodos].sort((a, b) => {
+    const sortedTodos = [...mobileFiltered].sort((a, b) => {
         if (sortBy === "dueDate") {
             return new Date(a.dueDate || 0) - new Date(b.dueDate || 0);
         }
@@ -74,11 +90,10 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
 
     const paginatedTodos = sortedTodos.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+    // --- MOBILE VIEW ---
     if (isMobile) {
         return (
             <Box sx={{ width: "100%", p: 1.5, boxSizing: "border-box" }}>
-
-
                 <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="h6" fontWeight="bold">Today</Typography>
@@ -115,7 +130,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                 </Box>
 
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
-                    Showing {paginatedTodos.length} of {filteredTodos.length} tasks
+                    Showing {paginatedTodos.length} of {mobileFiltered.length} tasks
                 </Typography>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'stretch' }}>
@@ -163,7 +178,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
 
                 <TablePagination
                     component="div"
-                    count={filteredTodos.length}
+                    count={mobileFiltered.length}
                     page={page}
                     onPageChange={(e, newPage) => setPage(newPage)}
                     rowsPerPage={rowsPerPage}
@@ -175,7 +190,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
         );
     }
 
-    // --- DESKTOP ---
+    // --- DESKTOP VIEW ---
     const columns = [
         {
             title: "Done",
@@ -198,7 +213,6 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
             title: "Priority",
             field: "priority",
             render: (rowData) => <Chip label={rowData.priority} size="small" color={priorityColor[rowData.priority] || "default"} />,
-            lookup: { LOW: "LOW", MEDIUM: "MEDIUM", HIGH: "HIGH", URGENT: "URGENT" },
         },
         {
             title: "Status",
@@ -215,19 +229,91 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
 
     return (
         <Box sx={{ width: "100%", p: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 3 }}>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Typography variant="h4" fontWeight="bold" color="text.primary">TODAY</Typography>
-                    <Chip icon={<CalendarMonthIcon fontSize="small" />} label={new Date().toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric' })} variant="outlined" color="primary" />
-                    <Chip label={`${todos.filter(t => t.status === "COMPLETED").length} tasks completed`} color="secondary" variant="outlined" size="small" />
+                    <Chip
+                        icon={<CalendarMonthIcon fontSize="small" />}
+                        label={formattedDate}
+                        variant="outlined"
+                        color="primary"
+                    />
                 </Box>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={onAddClick} sx={{ height: "fit-content" }}>Add Task</Button>
+            </Box>
+
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+
+                <Chip
+                    label={`${todos.filter(t => t.status === "COMPLETED").length} tasks completed`}
+                    color="secondary"
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                        borderRadius: '4px', 
+                        fontWeight: 'bold', 
+                        '& .MuiChip-label': { fontWeight: 'bold' } 
+                    }}
+                />
+
+
+                <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Priority</InputLabel>
+                        <Select
+                            value={filterPriority}
+                            label="Priority"
+                            onChange={(e) => setFilterPriority(e.target.value)}
+                        >
+                            <MenuItem value=""><em>All</em></MenuItem>
+                            <MenuItem value="LOW">Low</MenuItem>
+                            <MenuItem value="MEDIUM">Medium</MenuItem>
+                            <MenuItem value="HIGH">High</MenuItem>
+                            <MenuItem value="URGENT">Urgent</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel>Status</InputLabel>
+                        <Select
+                            value={filterStatus}
+                            label="Status"
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                        >
+                            <MenuItem value=""><em>All</em></MenuItem>
+                            <MenuItem value="PENDING">Pending</MenuItem>
+                            <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
+                            <MenuItem value="COMPLETED">Completed</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <TextField
+                        size="small"
+                        type="date"
+                        label="Due Date"
+                        InputLabelProps={{ shrink: true }}
+                        value={filterDueDate}
+                        onChange={(e) => setFilterDueDate(e.target.value)}
+                        sx={{ width: 150 }}
+                    />
+
+                    {(filterPriority || filterStatus || filterDueDate) && (
+                        <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => { setFilterPriority(""); setFilterStatus(""); setFilterDueDate(""); }}
+                        >
+                            Clear
+                        </Button>
+                    )}
+                </Box>
             </Box>
 
             <MaterialTable
                 title="TASKS"
                 columns={columns}
-                data={todos}
+                data={filteredTodos}
                 actions={[
                     { icon: () => <AddIcon />, tooltip: "Add Task", isFreeAction: true, onClick: onAddClick },
                     { icon: () => <EditIcon />, tooltip: "Edit Task", onClick: (event, rowData) => onEditClick(rowData) },
@@ -239,8 +325,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                     actionsColumnIndex: -1,
                     headerStyle: { backgroundColor: "#f5f5f5" },
                     rowStyle: (rowData) => ({ opacity: rowData.status === "COMPLETED" ? 0.6 : 1, cursor: "pointer" }),
-
-                    pageSize: 5, 
+                    pageSize: 5,
                     pageSizeOptions: [3, 5, 6]
                 }}
             />
