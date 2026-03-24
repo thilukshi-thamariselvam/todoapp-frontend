@@ -168,7 +168,7 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                     onPageChange={(e, newPage) => setPage(newPage)}
                     rowsPerPage={rowsPerPage}
                     onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
-                    rowsPerPageOptions={[5, 10, 25]}
+                    rowsPerPageOptions={[3, 5, 6]}
                     sx={{ mt: 2, borderBottom: 'none' }}
                 />
             </Box>
@@ -239,6 +239,9 @@ export default function TaskList({ todos, onAddClick, onEditClick, onDelete, onT
                     actionsColumnIndex: -1,
                     headerStyle: { backgroundColor: "#f5f5f5" },
                     rowStyle: (rowData) => ({ opacity: rowData.status === "COMPLETED" ? 0.6 : 1, cursor: "pointer" }),
+
+                    pageSize: 5, 
+                    pageSizeOptions: [3, 5, 6]
                 }}
             />
         </Box>
