@@ -1,25 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Box, AppBar, Toolbar, Typography, Container, IconButton } from "@mui/material";
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import api from "../api";
 import TaskModal from "../components/TaskModal";
 import TaskList from "../components/TaskList";
+import { createTodo, updateTodo, deleteTodo } from "../api";
 
 export default function TodoPage() {
-  const [todos, setTodos] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
-
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  const fetchTodos = () => {
-    api.get("/").then((res) => {
-      setTodos(res.data.data || []);
-    });
-  };
+  const [refreshCounter, setRefreshCounter] = useState(0);
 
   const handleOpenModal = (todo = null) => {
     setEditingTodo(todo);
@@ -55,48 +45,28 @@ export default function TodoPage() {
     };
 
     if (editingTodo) {
-      api.put(`/${editingTodo.id}`, payload).then((res) => {
-        setTodos(current => {
-          const updatedList = current.map(t => t.id === editingTodo.id ? res.data.data : t);
-          return updatedList.sort((a, b) => {
-            if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
-            return new Date(a.dueDate) - new Date(b.dueDate);
-          });
-        });
-      });
+      updateTodo(editingTodo.id, payload)
+        .then(() => {
+          handleCloseModal();
+          setRefreshCounter(c => c + 1);
+        })
+        .catch(err => console.error("Update failed", err));
     } else {
-      api.post("/", payload).then((res) => {
-        setTodos(current => {
-          const newList = [...current, res.data.data];
-          return newList.sort((a, b) => {
-            if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
-            return new Date(a.dueDate) - new Date(b.dueDate);
-          });
-        });
-      });
+      createTodo(payload)
+        .then(() => {
+          handleCloseModal();
+          setRefreshCounter(c => c + 1);
+        })
+        .catch(err => console.error("Create failed", err));
     }
   };
 
   const handleDelete = (id) => {
-    api.delete(`/${id}`).then(() => {
-      setTodos(current => current.filter(t => t.id !== id));
-    });
-  };
-
-  const handleToggle = (id, isCompleted) => {
-    const newStatus = isCompleted ? 'COMPLETED' : 'PENDING';
-    const todo = todos.find(t => t.id === id);
-
-    setTodos(current =>
-      current.map(t => (t.id === id ? { ...t, status: newStatus } : t))
-    );
-
-    api.put(`/${id}`, { ...todo, status: newStatus })
-      .catch(err => {
-        setTodos(current =>
-          current.map(t => (t.id === id ? { ...t, status: todo.status } : t))
-        );
-      });
+    deleteTodo(id)
+      .then(() => {
+        setRefreshCounter(c => c + 1);
+      })
+      .catch(err => console.error("Delete failed", err));
   };
 
   return (
@@ -122,17 +92,15 @@ export default function TodoPage() {
           <IconButton color="inherit">
             <AccountCircleIcon sx={{ fontSize: 32 }} />
           </IconButton>
-
         </Toolbar>
       </AppBar>
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <TaskList
-          todos={todos}
+          key={refreshCounter}
           onAddClick={() => handleOpenModal()}
           onEditClick={(todo) => handleOpenModal(todo)}
           onDelete={handleDelete}
-          onToggle={handleToggle}
         />
 
         <TaskModal
