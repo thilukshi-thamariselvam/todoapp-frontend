@@ -1,20 +1,36 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-//import './index.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import App from "./App.jsx";
-
 
 const darkTheme = createTheme({
   palette: {
-    mode: "dark",
+    mode: "light",
+    primary: {
+      main: "#FFC107", 
+      contrastText: "#000000", 
+    },
+    background: {
+      default: "#ffffff", 
+      paper: "#ffffff", 
+    },
+    text: {
+      primary: "#000000", 
+    },
+  },
+  typography: {
+    fontFamily: 'Poppins, sans-serif',
   },
 });
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider theme={darkTheme}>
-      <App />
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <App />
+      </LocalizationProvider>
     </ThemeProvider>
   </StrictMode>
 );
