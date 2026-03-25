@@ -28,6 +28,7 @@ import AddIcon from "@mui/icons-material/Add";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import SortIcon from "@mui/icons-material/Sort";
+import SearchIcon from "@mui/icons-material/Search";
 import { getTodos, updateTodo } from "../api";
 
 const priorityColor = {
@@ -51,6 +52,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
     const [rowsPerPage, setRowsPerPage] = useState(5);
     const [filterPriority, setFilterPriority] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
+    const [searchText, setSearchText] = useState("");
 
 
     const [mobileSortBy, setMobileSortBy] = useState("dueDate");
@@ -64,7 +66,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
 
     useEffect(() => {
         fetchData();
-    }, [page, rowsPerPage, filterPriority, filterStatus, mobileSortBy]);
+    }, [page, rowsPerPage, filterPriority, filterStatus, mobileSortBy, searchText]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -78,7 +80,8 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                 sort: sort,
                 direction: direction,
                 priority: filterPriority || null,
-                status: filterStatus || null
+                status: filterStatus || null,
+                search: searchText || null
             };
 
             const data = await getTodos(params);
@@ -140,7 +143,22 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                             <MenuItem value="title">Title</MenuItem>
                         </Select>
                     </FormControl>
+
+                    <TextField
+                        size="small"
+                        fullWidth
+                        placeholder="Search tasks..."
+                        value={searchText}
+                        onChange={(e) => { setSearchText(e.target.value); setPage(0); }}
+                        InputProps={{
+                            startAdornment: (<InputAdornment position="start"><SearchIcon color="action" /></InputAdornment>),
+                        }}
+                    />
                 </Box>
+
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                    Showing {todos.length} of {totalCount} tasks
+                </Typography>
 
                 {loading ? <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}><CircularProgress /></Box> : (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'stretch' }}>
@@ -286,7 +304,8 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                             sort: query.orderBy ? query.orderBy.field : 'dueDate',
                             direction: query.orderDirection || 'asc',
                             priority: filterPriority || null,
-                            status: filterStatus || null
+                            status: filterStatus || null,
+                            search: query.search || null
                         };
 
 
@@ -310,7 +329,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                     { icon: () => <DeleteIcon color="error" />, tooltip: "Delete Task", onClick: (event, rowData) => onDelete(rowData.id) },
                 ]}
                 options={{
-                    search: false,
+                    search: true,
                     paging: true,
                     sorting: true,
                     actionsColumnIndex: -1,
