@@ -51,13 +51,13 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
         initialValues={formattedValues}
         validationSchema={todoSchema}
         enableReinitialize={true}
-        onSubmit={(values, { resetForm }) => {
-          onSubmit(values);
+        onSubmit={async (values, { resetForm }) => {
+          await onSubmit(values);
           resetForm();
           onClose();
         }}
       >
-        {({ values, errors, touched, setFieldValue, handleChange }) => (
+        {({ values, errors, touched, setFieldValue, handleChange, isSubmitting }) => (
           <Form>
             <DialogContent dividers>
               <Grid container spacing={2}>
@@ -81,6 +81,8 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                     multiline
                     rows={3}
                     fullWidth
+                    error={touched.description && Boolean(errors.description)}
+                    helperText={touched.description && errors.description}
                   />
                 </Grid>
 
@@ -137,6 +139,18 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                       values.listCategory ??
                       ""
                     }
+                    onInputChange={(event, newInputValue, reason) => {
+                      if (reason === "input" || reason === "clear") {
+                        const selectedOption = LIST_CATEGORY_OPTIONS.find(
+                          opt => opt.label === newInputValue
+                        );
+
+                        setFieldValue(
+                          "listCategory",
+                          selectedOption ? selectedOption.value : newInputValue
+                        );
+                      }
+                    }}
                     onChange={(event, newValue) => {
                       const selectedOption = LIST_CATEGORY_OPTIONS.find(
                         opt => opt.label === newValue
@@ -224,8 +238,8 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
             </DialogContent>
 
             <DialogActions>
-              <Button onClick={onClose} color="inherit">Cancel</Button>
-              <Button type="submit" variant="contained" color="primary">
+              <Button onClick={onClose} color="inherit" disabled={isSubmitting}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary" disabled={isSubmitting}>
                 {mode === "add" ? "Create Task" : "Save Changes"}
               </Button>
             </DialogActions>
