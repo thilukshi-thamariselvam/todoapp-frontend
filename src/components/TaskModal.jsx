@@ -29,10 +29,13 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
   };
 
   const formattedValues = initialValues ? {
+    ...defaultValues,
     ...initialValues,
     dueDate: initialValues.dueDate ? new Date(initialValues.dueDate) : null,
     reminder: initialValues.reminder ? new Date(initialValues.reminder) : null,
-    isPinned: initialValues.isPinned || false
+    tags: Array.isArray(initialValues.tags) ? initialValues.tags : [],
+    subTasks: Array.isArray(initialValues.subTasks) ? initialValues.subTasks : [],
+    isPinned: initialValues.isPinned ?? false,
   } : defaultValues;
 
   const today = new Date();
@@ -129,7 +132,11 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                 <Grid size={{ xs: 12 }}>
                   <Autocomplete
                     options={LIST_CATEGORY_OPTIONS.map(opt => opt.label)}
-                    value={LIST_CATEGORY_OPTIONS.find(opt => opt.value === values.listCategory)?.label || ""}
+                    value={
+                      LIST_CATEGORY_OPTIONS.find(opt => opt.value === values.listCategory)?.label ??
+                      values.listCategory ??
+                      ""
+                    }
                     onChange={(event, newValue) => {
                       const selectedOption = LIST_CATEGORY_OPTIONS.find(
                         opt => opt.label === newValue
@@ -137,7 +144,7 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
 
                       setFieldValue(
                         "listCategory",
-                        selectedOption ? selectedOption.value : newValue
+                        selectedOption ? selectedOption.value : newValue || ""
                       );
                     }}
                     freeSolo
@@ -187,10 +194,15 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                             <Field
                               name={`subTasks.${index}.title`}
                               as={TextField}
+                              label={`Subtask ${index + 1}`}
                               size="small"
                               fullWidth
                             />
-                            <IconButton color="error" onClick={() => remove(index)}>
+                            <IconButton
+                              color="error"
+                              onClick={() => remove(index)}
+                              aria-label={`Delete subtask ${index + 1}`}
+                            >
                               <DeleteIcon />
                             </IconButton>
                           </Box>
