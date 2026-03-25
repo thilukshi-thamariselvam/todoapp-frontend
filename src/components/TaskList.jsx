@@ -213,6 +213,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
         );
     }
 
+
     // --- DESKTOP VIEW ---
     const columns = [
         {
@@ -247,20 +248,23 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
 
     return (
         <Box sx={{ width: "100%", p: 2 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Typography variant="h4" fontWeight="bold" color="text.primary">TODAY</Typography>
-                    <Chip icon={<CalendarMonthIcon fontSize="small" />} label={formattedDate} variant="outlined" color="primary" />
-                </Box>
-                <Button variant="contained" startIcon={<AddIcon />} onClick={onAddClick} sx={{ height: "fit-content" }}>Add Task</Button>
-            </Box>
 
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                <Chip
-                    label={`${totalCount} total tasks`}
-                    color="secondary" variant="outlined" size="small"
-                    sx={{ borderRadius: '4px', fontWeight: 'bold', '& .MuiChip-label': { fontWeight: 'bold' } }}
-                />
+
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Typography variant="h4" fontWeight="bold" color="text.primary">TODAY</Typography>
+                    <Chip
+                        icon={<CalendarMonthIcon fontSize="small" sx={{ color: 'black' }} />}
+                        label={formattedDate}
+                        sx={{
+                            backgroundColor: '#FFD107',
+                            color: 'black',
+                            fontWeight: 'bold',
+                            border: 'none',
+                            '& .MuiChip-icon': { color: 'black' }
+                        }}
+                    />
+                </Box>
 
                 <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                     <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -285,62 +289,97 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                     </FormControl>
 
                     {(filterPriority || filterStatus) && (
-                        <Button size="small" variant="outlined" onClick={() => { setFilterPriority(""); setFilterStatus(""); setPage(0); }}>
+                        <Button size="small" variant="outlined" color="error" onClick={() => { setFilterPriority(""); setFilterStatus(""); setPage(0); }}>
                             Clear
                         </Button>
                     )}
                 </Box>
             </Box>
 
-            <MaterialTable
-                tableRef={tableRef}
-                title="TASKS"
-                columns={columns}
-                data={(query) =>
-                    new Promise((resolve, reject) => {
-                        const params = {
-                            page: query.page,
-                            size: query.pageSize,
-                            sort: query.orderBy ? query.orderBy.field : 'dueDate',
-                            direction: query.orderDirection || 'asc',
-                            priority: filterPriority || null,
-                            status: filterStatus || null,
-                            search: query.search || null
-                        };
-
-
-                        getTodos(params)
-                            .then((result) => {
-                                setTotalCount(result.totalElements);
-                                resolve({
-                                    data: result.content,
-                                    page: result.number,
-                                    totalCount: result.totalElements,
-                                });
-                            })
-                            .catch(error => {
-                                console.error("Fetch error", error);
-                                reject(error);
-                            });
-                    })
+            <Box sx={{
+                '& .MuiToolbar-root': {
+                    paddingLeft: '15px !important',  
+                    paddingRight: '0px !important', 
                 }
-                actions={[
-                    { icon: () => <EditIcon />, tooltip: "Edit Task", onClick: (event, rowData) => onEditClick(rowData) },
-                    { icon: () => <DeleteIcon color="error" />, tooltip: "Delete Task", onClick: (event, rowData) => onDelete(rowData.id) },
-                ]}
-                options={{
-                    search: true,
-                    paging: true,
-                    sorting: true,
-                    actionsColumnIndex: -1,
-                    headerStyle: { backgroundColor: "#f5f5f5" },
-                    rowStyle: (rowData) => ({ opacity: rowData.status === "COMPLETED" ? 0.6 : 1, cursor: "pointer" }),
-                    pageSize: 5,
-                    pageSizeOptions: [3, 5, 6],
-                    debounceInterval: 500,
-                }}
-                key={filterPriority + filterStatus}
-            />
+            }}>
+                <MaterialTable
+                    tableRef={tableRef}
+                    title={
+                        <Typography variant="h6" fontWeight="bold">
+                            {`TOTAL TASKS - ${totalCount}`}
+                        </Typography>
+                    }
+                    columns={columns}
+                    data={(query) =>
+                        new Promise((resolve, reject) => {
+                            const params = {
+                                page: query.page,
+                                size: query.pageSize,
+                                sort: query.orderBy ? query.orderBy.field : 'dueDate',
+                                direction: query.orderDirection || 'asc',
+                                priority: filterPriority || null,
+                                status: filterStatus || null,
+                                search: query.search || null
+                            };
+
+                            getTodos(params)
+                                .then((result) => {
+                                    setTotalCount(result.totalElements);
+                                    resolve({
+                                        data: result.content,
+                                        page: result.number,
+                                        totalCount: result.totalElements,
+                                    });
+                                })
+                                .catch(error => reject(error));
+                        })
+                    }
+                    actions={[
+                        {
+                            icon: () => (
+                                <Button
+                                    variant="contained"
+                                    startIcon={<AddIcon />}
+                                    sx={{
+                                        backgroundColor: '#FFD700',
+                                        color: 'black',
+                                        borderRadius: '20px',
+                                        fontWeight: 'bold',
+                                        '&:hover': { backgroundColor: '#FFC107' }
+                                    }}
+                                >
+                                    ADD TASK
+                                </Button>
+                            ),
+                            tooltip: "Add Task",
+                            isFreeAction: true,
+                            onClick: onAddClick
+                        },
+                        {
+                            icon: () => <EditIcon />,
+                            tooltip: "Edit Task",
+                            onClick: (event, rowData) => onEditClick(rowData)
+                        },
+                        {
+                            icon: () => <DeleteIcon color="error" />,
+                            tooltip: "Delete Task",
+                            onClick: (event, rowData) => onDelete(rowData.id)
+                        }
+                    ]}
+                    options={{
+                        search: true,
+                        paging: true,
+                        sorting: true,
+                        actionsColumnIndex: -1,
+                        headerStyle: { backgroundColor: "#f5f5f5" },
+                        rowStyle: (rowData) => ({ opacity: rowData.status === "COMPLETED" ? 0.6 : 1, cursor: "pointer" }),
+                        pageSize: 5,
+                        pageSizeOptions: [3, 5, 6],
+                        debounceInterval: 500,
+                    }}
+                    key={filterPriority + filterStatus}
+                />
+            </Box>
         </Box>
     );
 }
