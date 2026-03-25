@@ -32,11 +32,11 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
     ...initialValues,
     dueDate: initialValues.dueDate ? new Date(initialValues.dueDate) : null,
     reminder: initialValues.reminder ? new Date(initialValues.reminder) : null,
-    isPinned: initialValues.isPinned || false 
+    isPinned: initialValues.isPinned || false
   } : defaultValues;
 
   const today = new Date();
-  today.setHours(0, 0, 0, 0); 
+  today.setHours(0, 0, 0, 0);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -131,10 +131,16 @@ export default function TaskModal({ open, onClose, onSubmit, initialValues, mode
                     options={LIST_CATEGORY_OPTIONS.map(opt => opt.label)}
                     value={LIST_CATEGORY_OPTIONS.find(opt => opt.value === values.listCategory)?.label || ""}
                     onChange={(event, newValue) => {
-                      const selectedOption = LIST_CATEGORY_OPTIONS.find(opt => opt.label === newValue);
-                      setFieldValue("listCategory", selectedOption ? selectedOption.value : "");
+                      const selectedOption = LIST_CATEGORY_OPTIONS.find(
+                        opt => opt.label === newValue
+                      );
+
+                      setFieldValue(
+                        "listCategory",
+                        selectedOption ? selectedOption.value : newValue
+                      );
                     }}
-                    freeSolo 
+                    freeSolo
                     renderInput={(params) => (
                       <TextField
                         {...params}
