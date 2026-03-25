@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
     Box,
     Typography,
@@ -104,10 +104,15 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
 
         try {
             await updateTodo(id, { ...todo, status: newStatus });
+            if (tableRef.current) {
+                tableRef.current.onQueryChange();
+            }
         } catch (err) {
             setTodos(current => current.map(t => (t.id === id ? { ...t, status: todo.status } : t)));
         }
     };
+
+    const tableRef = useRef();
 
     // --- MOBILE VIEW ---
     if (isMobile) {
@@ -270,6 +275,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
             </Box>
 
             <MaterialTable
+                tableRef={tableRef}
                 title="TASKS"
                 columns={columns}
                 data={(query) =>
