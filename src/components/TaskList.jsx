@@ -65,11 +65,34 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
         day: "numeric",
     });
 
+
+    const prevFilters = useRef({ priority: "", status: "" });
+
+    useEffect(() => {
+        if (!isMobile && tableRef.current) {
+            const hasChanged =
+                prevFilters.current.priority !== filterPriority ||
+                prevFilters.current.status !== filterStatus;
+
+            if (hasChanged) {
+                prevFilters.current = { priority: filterPriority, status: filterStatus };
+
+                const timer = setTimeout(() => {
+                    if (tableRef.current) {
+                        tableRef.current.onQueryChange({ page: 0 });
+                    }
+                }, 100);
+
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [filterPriority, filterStatus, isMobile]);
+
     useEffect(() => {
         if (isMobile) {
             fetchData();
         }
-    }, [page, rowsPerPage, filterPriority, filterStatus, mobileSortBy, searchText]);
+    }, [page, rowsPerPage, mobileSortBy, searchText]);
 
     const fetchData = async () => {
         setLoading(true);
@@ -441,7 +464,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                         pageSizeOptions: [3, 5, 6],
                         debounceInterval: 500,
                     }}
-                    key={filterPriority + filterStatus}
+                //key={filterPriority + filterStatus}
                 />
             </Box>
         </Box>
