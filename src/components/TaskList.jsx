@@ -19,7 +19,7 @@ import {
     FormControl,
     InputLabel,
     CircularProgress,
-    Grid
+    Grid, Stack, Divider, Paper
 } from "@mui/material";
 import MaterialTableImport from "@material-table/core";
 const MaterialTable = MaterialTableImport.default || MaterialTableImport;
@@ -30,6 +30,11 @@ import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import SortIcon from "@mui/icons-material/Sort";
 import SearchIcon from "@mui/icons-material/Search";
+import DescriptionIcon from '@mui/icons-material/Description';
+import SubtasksIcon from '@mui/icons-material/PlaylistAddCheck';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import UpdateIcon from '@mui/icons-material/Update';
+import LabelIcon from '@mui/icons-material/Label';
 import { getTodos, updateTodo } from "../api";
 
 const priorityColor = {
@@ -125,19 +130,26 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
         setPage(0);
     };
 
-    const handleToggle = async (id, isCompleted) => {
+    const handleToggle = async (todo, isCompleted) => {
         const newStatus = isCompleted ? 'COMPLETED' : 'PENDING';
-        const todo = todos.find(t => t.id === id);
-
-        setTodos(current => current.map(t => (t.id === id ? { ...t, status: newStatus } : t)));
-
+        const id = todo.id;
+        if (isMobile) {
+            setTodos(current => current.map(t => (t.id === id ? { ...t, status: newStatus } : t)));
+        }
         try {
             await updateTodo(id, { ...todo, status: newStatus });
-            if (tableRef.current) {
-                tableRef.current.onQueryChange();
+            if (isMobile) {
+            } else {
+                if (tableRef.current) {
+                    tableRef.current.onQueryChange();
+                }
             }
         } catch (err) {
-            setTodos(current => current.map(t => (t.id === id ? { ...t, status: todo.status } : t)));
+            console.error("Update failed", err);
+
+            if (isMobile) {
+                setTodos(current => current.map(t => (t.id === id ? { ...t, status: todo.status } : t)));
+            }
         }
     };
 
@@ -215,7 +227,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                                         </Box>
                                     </CardContent>
                                     <CardActions onClick={(e) => e.stopPropagation()}>
-                                        <Checkbox checked={todo.status === "COMPLETED"} onChange={(e) => handleToggle(todo.id, e.target.checked)} />
+                                        <Checkbox checked={todo.status === "COMPLETED"} onChange={(e) => handleToggle(todo, e.target.checked)} />
                                         <Box sx={{ flexGrow: 1 }} />
                                         <IconButton size="small" onClick={() => onEditClick(todo)}><EditIcon fontSize="small" /></IconButton>
                                         <IconButton size="small" color="error" onClick={() => onDelete(todo.id)}><DeleteIcon fontSize="small" /></IconButton>
@@ -254,7 +266,11 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
         {
             title: "Done", field: "status",
             render: (rowData) => (
-                <Checkbox checked={rowData.status === "COMPLETED"} onChange={(e) => handleToggle(rowData.id, e.target.checked)} onClick={(e) => e.stopPropagation()} />
+                <Checkbox
+                    checked={rowData.status === "COMPLETED"}
+                    onChange={(e) => handleToggle(rowData, e.target.checked)}
+                    onClick={(e) => e.stopPropagation()}
+                />
             ),
         },
         {
@@ -370,53 +386,118 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                         })
                     }
                     detailPanel={({ rowData }) => (
-                        <Box sx={{ p: 2, backgroundColor: '#f9f9f9', borderBottom: '1px solid #e0e0e0' }}>
-                            <Grid container spacing={2}>
+                        <Box sx={{ p: 3, backgroundColor: '#FAFAFA', borderBottom: '1px solid #E0E0E0' }}>
+                            <Grid container spacing={3}>
                                 <Grid item xs={12} md={8}>
-                                    <Typography variant="subtitle2" color="text.secondary">Description</Typography>
-                                    <Typography variant="body2" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
-                                        {rowData.description || "No description provided."}
-                                    </Typography>
+                                    <Stack spacing={3}>
+                                        <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'white' }}>
+                                            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                                                <DescriptionIcon color="action" fontSize="small" />
+                                                <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+                                                    DESCRIPTION
+                                                </Typography>
+                                            </Stack>
+                                            <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', color: rowData.description ? 'text.primary' : 'text.disabled' }}>
+                                                {rowData.description || "No description provided."}
+                                            </Typography>
+                                        </Paper>
 
-                                    {rowData.subTasks && rowData.subTasks.length > 0 && (
-                                        <>
-                                            <Typography variant="subtitle2" color="text.secondary">Subtasks</Typography>
-                                            <Box sx={{ mt: 1 }}>
-                                                {rowData.subTasks.map((st, index) => (
-                                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                                                        <Checkbox size="small" checked={st.completed} disabled />
-                                                        <Typography variant="body2" sx={{ textDecoration: st.completed ? 'line-through' : 'none' }}>
-                                                            {st.title}
-                                                        </Typography>
-                                                    </Box>
-                                                ))}
-                                            </Box>
-                                        </>
-                                    )}
+                                        {rowData.subTasks && rowData.subTasks.length > 0 && (
+                                            <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'white' }}>
+                                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                                                    <SubtasksIcon color="action" fontSize="small" />
+                                                    <Typography variant="subtitle2" color="text.secondary" fontWeight="bold">
+                                                        SUBTASKS ({rowData.subTasks.length})
+                                                    </Typography>
+                                                </Stack>
+                                                <Stack spacing={1}>
+                                                    {rowData.subTasks.map((st, index) => (
+                                                        <Box
+                                                            key={index}
+                                                            sx={{
+                                                                display: 'flex',
+                                                                alignItems: 'flex-start',
+                                                                gap: 1,
+                                                                pl: 1
+                                                            }}
+                                                        >
+                                                            <Typography variant="body2">
+                                                                •
+                                                            </Typography>
+
+                                                            <Typography
+                                                                variant="body2"
+                                                                sx={{
+                                                                    textDecoration: st.completed ? 'line-through' : 'none',
+                                                                    color: st.completed ? 'text.disabled' : 'text.primary'
+                                                                }}
+                                                            >
+                                                                {st.title}
+                                                            </Typography>
+                                                        </Box>
+                                                    ))}
+                                                </Stack>
+                                            </Paper>
+                                        )}
+
+                                    </Stack>
                                 </Grid>
 
                                 <Grid item xs={12} md={4}>
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                        <Box>
-                                            <Typography variant="caption" color="text.secondary">Created</Typography>
-                                            <Typography variant="body2">{formatDateTime(rowData.createdDate)}</Typography>
-                                        </Box>
-                                        <Box>
-                                            <Typography variant="caption" color="text.secondary">Last Updated</Typography>
-                                            <Typography variant="body2">{formatDateTime(rowData.updatedDate)}</Typography>
-                                        </Box>
+                                    <Stack spacing={3} sx={{ height: '100%', borderLeft: { md: '1px solid #E0E0E0' }, pl: { md: 3 } }}>
+                                        <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'white' }}>
+                                            <Stack spacing={2}>
+                                                <Box>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <EventNoteIcon sx={{ fontSize: 16 }} color="action" />
+                                                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                                                            CREATED
+                                                        </Typography>
+                                                    </Stack>
+                                                    <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                                        {formatDateTime(rowData.createdDate)}
+                                                    </Typography>
+                                                </Box>
+
+                                                <Divider />
+
+                                                <Box>
+                                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                                        <UpdateIcon sx={{ fontSize: 16 }} color="action" />
+                                                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                                                            LAST UPDATED
+                                                        </Typography>
+                                                    </Stack>
+                                                    <Typography variant="body2" sx={{ mt: 0.5 }}>
+                                                        {formatDateTime(rowData.updatedDate)}
+                                                    </Typography>
+                                                </Box>
+                                            </Stack>
+                                        </Paper>
 
                                         {rowData.tags && rowData.tags.length > 0 && (
-                                            <Box sx={{ mt: 1 }}>
-                                                <Typography variant="caption" color="text.secondary">Tags</Typography>
-                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                                            <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'white' }}>
+                                                <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
+                                                    <LabelIcon sx={{ fontSize: 16 }} color="action" />
+                                                    <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                                                        TAGS
+                                                    </Typography>
+                                                </Stack>
+                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                                     {rowData.tags.map((tag, idx) => (
-                                                        <Chip key={idx} label={tag} size="small" variant="outlined" />
+                                                        <Chip
+                                                            key={idx}
+                                                            label={tag}
+                                                            size="small"
+                                                            variant="outlined"
+                                                            color="primary"
+                                                            sx={{ borderRadius: '4px' }}
+                                                        />
                                                     ))}
                                                 </Box>
-                                            </Box>
+                                            </Paper>
                                         )}
-                                    </Box>
+                                    </Stack>
                                 </Grid>
                             </Grid>
                         </Box>
