@@ -66,7 +66,9 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
     });
 
     useEffect(() => {
-        fetchData();
+        if (isMobile) {
+            fetchData();
+        }
     }, [page, rowsPerPage, filterPriority, filterStatus, mobileSortBy, searchText]);
 
     const fetchData = async () => {
