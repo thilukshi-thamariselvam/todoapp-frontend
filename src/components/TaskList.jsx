@@ -18,7 +18,8 @@ import {
     TablePagination,
     FormControl,
     InputLabel,
-    CircularProgress
+    CircularProgress,
+    Grid
 } from "@mui/material";
 import MaterialTableImport from "@material-table/core";
 const MaterialTable = MaterialTableImport.default || MaterialTableImport;
@@ -215,6 +216,15 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
 
 
     // --- DESKTOP VIEW ---
+
+    const formatDateTime = (dateString) => {
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleString("en-GB", {
+            day: '2-digit', month: '2-digit', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+    };
+
     const columns = [
         {
             title: "Done", field: "status",
@@ -298,8 +308,8 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
 
             <Box sx={{
                 '& .MuiToolbar-root': {
-                    paddingLeft: '15px !important',  
-                    paddingRight: '0px !important', 
+                    paddingLeft: '30px !important',
+                    paddingRight: '0px !important',
                 }
             }}>
                 <MaterialTable
@@ -315,8 +325,8 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                             const params = {
                                 page: query.page,
                                 size: query.pageSize,
-                                sort: query.orderBy ? query.orderBy.field : 'dueDate',
-                                direction: query.orderDirection || 'asc',
+                                sort: query.orderBy ? query.orderBy.field : 'createdDate',
+                                direction: query.orderDirection || 'desc',
                                 priority: filterPriority || null,
                                 status: filterStatus || null,
                                 search: query.search || null
@@ -334,6 +344,58 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                                 .catch(error => reject(error));
                         })
                     }
+                    detailPanel={({ rowData }) => (
+                        <Box sx={{ p: 2, backgroundColor: '#f9f9f9', borderBottom: '1px solid #e0e0e0' }}>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} md={8}>
+                                    <Typography variant="subtitle2" color="text.secondary">Description</Typography>
+                                    <Typography variant="body2" sx={{ mb: 2, whiteSpace: 'pre-wrap' }}>
+                                        {rowData.description || "No description provided."}
+                                    </Typography>
+
+                                    {rowData.subTasks && rowData.subTasks.length > 0 && (
+                                        <>
+                                            <Typography variant="subtitle2" color="text.secondary">Subtasks</Typography>
+                                            <Box sx={{ mt: 1 }}>
+                                                {rowData.subTasks.map((st, index) => (
+                                                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                                                        <Checkbox size="small" checked={st.completed} disabled />
+                                                        <Typography variant="body2" sx={{ textDecoration: st.completed ? 'line-through' : 'none' }}>
+                                                            {st.title}
+                                                        </Typography>
+                                                    </Box>
+                                                ))}
+                                            </Box>
+                                        </>
+                                    )}
+                                </Grid>
+
+                                <Grid item xs={12} md={4}>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">Created</Typography>
+                                            <Typography variant="body2">{formatDateTime(rowData.createdDate)}</Typography>
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="caption" color="text.secondary">Last Updated</Typography>
+                                            <Typography variant="body2">{formatDateTime(rowData.updatedDate)}</Typography>
+                                        </Box>
+
+                                        {rowData.tags && rowData.tags.length > 0 && (
+                                            <Box sx={{ mt: 1 }}>
+                                                <Typography variant="caption" color="text.secondary">Tags</Typography>
+                                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                                                    {rowData.tags.map((tag, idx) => (
+                                                        <Chip key={idx} label={tag} size="small" variant="outlined" />
+                                                    ))}
+                                                </Box>
+                                            </Box>
+                                        )}
+                                    </Box>
+                                </Grid>
+                            </Grid>
+                        </Box>
+                    )}
                     actions={[
                         {
                             icon: () => (
