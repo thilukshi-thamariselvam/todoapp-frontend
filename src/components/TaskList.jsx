@@ -1,25 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-    Box,
-    Typography,
-    Button,
-    Checkbox,
-    IconButton,
-    Chip,
-    Card,
-    CardContent,
-    CardActions,
-    useTheme,
-    useMediaQuery,
-    TextField,
-    MenuItem,
-    Select,
-    InputAdornment,
-    TablePagination,
-    FormControl,
-    InputLabel,
-    CircularProgress,
-    Grid, Stack, Divider, Paper
+    Box, Typography, Button, Checkbox, IconButton, Chip, Card, CardContent, CardActions,
+    useTheme, useMediaQuery, TextField, MenuItem, Select, InputAdornment, TablePagination,
+    FormControl, InputLabel, CircularProgress, Grid, Stack, Divider, Paper
 } from "@mui/material";
 import MaterialTableImport from "@material-table/core";
 const MaterialTable = MaterialTableImport.default || MaterialTableImport;
@@ -235,6 +218,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                                         <Box sx={{ flexGrow: 1 }} />
                                         <IconButton size="small" onClick={() => onEditClick(todo)}><EditIcon fontSize="small" /></IconButton>
                                         <IconButton size="small" color="error" onClick={() => onDelete(todo.id)}><DeleteIcon fontSize="small" /></IconButton>
+                                        <IconButton size="small" onClick={() => navigate(`/task/${todo.id}`)} title="View Details"> <VisibilityIcon fontSize="small" /> </IconButton>
                                     </CardActions>
                                 </Card>
                             ))
@@ -550,7 +534,6 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                         pageSizeOptions: [3, 5, 6],
                         debounceInterval: 500,
                     }}
-                //key={filterPriority + filterStatus}
                 />
             </Box>
         </Box>
