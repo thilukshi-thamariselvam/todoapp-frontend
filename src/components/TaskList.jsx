@@ -35,6 +35,8 @@ import SubtasksIcon from '@mui/icons-material/PlaylistAddCheck';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import UpdateIcon from '@mui/icons-material/Update';
 import LabelIcon from '@mui/icons-material/Label';
+import { useNavigate } from 'react-router-dom';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { getTodos, updateTodo } from "../api";
 
 const priorityColor = {
@@ -47,6 +49,8 @@ const priorityColor = {
 export default function TaskList({ onAddClick, onEditClick, onDelete }) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+    const navigate = useNavigate();
 
     // --- DATA STATE ---
     const [todos, setTodos] = useState([]);
@@ -344,6 +348,20 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                             Clear
                         </Button>
                     )}
+                    <Button
+                        variant="contained"
+                        startIcon={<AddIcon />}
+                        onClick={onAddClick}
+                        sx={{
+                            backgroundColor: '#FFD700',
+                            color: 'black',
+                            borderRadius: '20px',
+                            fontWeight: 'bold',
+                            '&:hover': { backgroundColor: '#FFC107' }
+                        }}
+                    >
+                        ADD TASK
+                    </Button>
                 </Box>
             </Box>
 
@@ -504,26 +522,6 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                     )}
                     actions={[
                         {
-                            icon: () => (
-                                <Button
-                                    variant="contained"
-                                    startIcon={<AddIcon />}
-                                    sx={{
-                                        backgroundColor: '#FFD700',
-                                        color: 'black',
-                                        borderRadius: '20px',
-                                        fontWeight: 'bold',
-                                        '&:hover': { backgroundColor: '#FFC107' }
-                                    }}
-                                >
-                                    ADD TASK
-                                </Button>
-                            ),
-                            tooltip: "Add Task",
-                            isFreeAction: true,
-                            onClick: onAddClick
-                        },
-                        {
                             icon: () => <EditIcon />,
                             tooltip: "Edit Task",
                             onClick: (event, rowData) => onEditClick(rowData)
@@ -532,12 +530,19 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                             icon: () => <DeleteIcon color="error" />,
                             tooltip: "Delete Task",
                             onClick: (event, rowData) => onDelete(rowData.id)
-                        }
+                        },
+                        {
+                            icon: () => <VisibilityIcon color="primary" />,
+                            tooltip: "View Full Details",
+                            onClick: (event, rowData) => {
+                                navigate(`/task/${rowData.id}`);
+                            }
+                        },
                     ]}
                     options={{
                         search: true,
                         paging: true,
-                        sorting: true,
+                        maxColumnSort: 1,
                         actionsColumnIndex: -1,
                         headerStyle: { backgroundColor: "#f5f5f5" },
                         rowStyle: (rowData) => ({ opacity: rowData.status === "COMPLETED" ? 0.6 : 1, cursor: "pointer" }),

@@ -43,3 +43,13 @@ export const deleteTodo = async (id) => {
     throw error;
   }
 };
+
+export const getTodoById = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/${id}`);
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching todo by id:", error);
+    throw error;
+  }
+};
