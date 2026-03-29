@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import {
     Box, Typography, Button, Checkbox, IconButton, Chip, Card, CardContent, CardActions,
     useTheme, useMediaQuery, TextField, MenuItem, Select, InputAdornment, TablePagination,
-    FormControl, InputLabel, CircularProgress, Grid, Stack, Divider, Paper
+    FormControl, InputLabel, CircularProgress, Grid, Stack, Divider, Paper,
+    Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
 } from "@mui/material";
 import MaterialTableImport from "@material-table/core";
 const MaterialTable = MaterialTableImport.default || MaterialTableImport;
@@ -47,6 +48,10 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
     const [filterStatus, setFilterStatus] = useState("");
     const [searchText, setSearchText] = useState("");
 
+    // --- DIALOG STATE ---
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [taskToDelete, setTaskToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [mobileSortBy, setMobileSortBy] = useState("dueDate");
 
@@ -140,6 +145,31 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
         }
     };
 
+    const handleDeleteClick = (task) => {
+        setTaskToDelete(task);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (taskToDelete) {
+            setIsDeleting(true);
+            try {
+                await onDelete(taskToDelete.id);
+                setDeleteDialogOpen(false);
+                setTaskToDelete(null);
+            } catch (error) {
+                console.error("Delete failed", error);
+            } finally {
+                setIsDeleting(false);
+            }
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteDialogOpen(false);
+        setTaskToDelete(null);
+    };
+
     const tableRef = useRef();
 
     // --- MOBILE VIEW ---
@@ -217,7 +247,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                                         <Checkbox checked={todo.status === "COMPLETED"} onChange={(e) => handleToggle(todo, e.target.checked)} />
                                         <Box sx={{ flexGrow: 1 }} />
                                         <IconButton size="small" onClick={() => onEditClick(todo)}><EditIcon fontSize="small" /></IconButton>
-                                        <IconButton size="small" color="error" onClick={() => onDelete(todo.id)}><DeleteIcon fontSize="small" /></IconButton>
+                                        <IconButton size="small" color="error" onClick={() => handleDeleteClick(todo)}><DeleteIcon fontSize="small" /></IconButton>
                                         <IconButton size="small" onClick={() => navigate(`/task/${todo.id}`)} title="View Details"> <VisibilityIcon fontSize="small" /> </IconButton>
                                     </CardActions>
                                 </Card>
@@ -235,6 +265,43 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                     onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
                     rowsPerPageOptions={[3, 5, 6]}
                 />
+
+                <Dialog
+                    open={deleteDialogOpen}
+                    onClose={handleCancelDelete}
+                    aria-labelledby="delete-dialog-title"
+                    aria-describedby="delete-dialog-description"
+                    maxWidth="xs"
+                    fullWidth
+                >
+                    <DialogTitle id="delete-dialog-title" sx={{ fontWeight: 'bold' }}>
+                        Delete Task?
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="delete-dialog-description">
+                            Are you sure you want to delete "{taskToDelete?.title}"? This action cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions sx={{ px: 3, pb: 2 }}>
+                        <Button
+                            onClick={handleCancelDelete}
+                            disabled={isDeleting}
+                            sx={{ color: 'text.secondary' }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmDelete}
+                            color="error"
+                            variant="contained"
+                            disabled={isDeleting}
+                            startIcon={isDeleting ? <CircularProgress size={16} color="inherit" /> : <DeleteIcon fontSize="small" />}
+                        >
+                            {isDeleting ? "Deleting..." : "Yes, Delete"}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
             </Box>
         );
     }
@@ -513,7 +580,7 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                         {
                             icon: () => <DeleteIcon color="error" />,
                             tooltip: "Delete Task",
-                            onClick: (event, rowData) => onDelete(rowData.id)
+                            onClick: (event, rowData) => handleDeleteClick(rowData)
                         },
                         {
                             icon: () => <VisibilityIcon color="primary" />,
@@ -536,6 +603,42 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                     }}
                 />
             </Box>
+            <Dialog
+                open={deleteDialogOpen}
+                onClose={handleCancelDelete}
+                aria-labelledby="delete-dialog-title"
+                aria-describedby="delete-dialog-description"
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle id="delete-dialog-title" sx={{ fontWeight: 'bold' }}>
+                    Delete Task?
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="delete-dialog-description">
+                        Are you sure you want to delete "{taskToDelete?.title}"? This action cannot be undone.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button
+                        onClick={handleCancelDelete}
+                        disabled={isDeleting}
+                        sx={{ color: 'text.secondary' }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        color="error"
+                        variant="contained"
+                        disabled={isDeleting}
+                        startIcon={isDeleting ? <CircularProgress size={16} color="inherit" /> : <DeleteIcon fontSize="small" />}
+                    >
+                        {isDeleting ? "Deleting..." : "Yes, Delete"}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
         </Box>
     );
 }
