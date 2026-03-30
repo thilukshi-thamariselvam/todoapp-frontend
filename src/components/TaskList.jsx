@@ -360,15 +360,10 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <Typography variant="h4" fontWeight="bold" color="text.primary">TODAY</Typography>
                     <Chip
-                        icon={<CalendarMonthIcon fontSize="small" sx={{ color: 'black' }} />}
+                        icon={<CalendarMonthIcon fontSize="small" />}
                         label={formattedDate}
-                        sx={{
-                            backgroundColor: '#FFD107',
-                            color: 'black',
-                            fontWeight: 'bold',
-                            border: 'none',
-                            '& .MuiChip-icon': { color: 'black' }
-                        }}
+                        color="primary"
+                        variant="outlined"
                     />
                 </Box>
 
@@ -403,15 +398,8 @@ export default function TaskList({ onAddClick, onEditClick, onDelete }) {
                         variant="contained"
                         startIcon={<AddIcon />}
                         onClick={onAddClick}
-                        sx={{
-                            backgroundColor: '#FFD700',
-                            color: 'black',
-                            borderRadius: '20px',
-                            fontWeight: 'bold',
-                            '&:hover': { backgroundColor: '#FFC107' }
-                        }}
                     >
-                        ADD TASK
+                        Add Task
                     </Button>
                 </Box>
             </Box>

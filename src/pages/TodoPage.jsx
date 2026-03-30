@@ -81,7 +81,8 @@ export default function TodoPage() {
               sx={{
                 fontWeight: 800,
                 letterSpacing: 1.5,
-                textTransform: 'uppercase'
+                textTransform: 'uppercase',
+                color: 'inherit'
               }}
             >
               TODO APP

@@ -1,8 +1,5 @@
 body {
   margin: 0;
-  font-family: 'Poppins', sans-serif !important;
-  background-color: #f3f4f6;
-  color: #111;
 }
 
 .app-container {
@@ -15,19 +12,15 @@ body {
 
 .task-list {
   flex: 2;
-  background-color: #f9f9f9;
   padding: 1rem;
   border-radius: 10px;
-  color: #111;
 }
 
 .task-detail {
   flex: 1;
-  background-color: #ffffff;
   padding: 1rem;
   border-radius: 10px;
   border-left: 1px solid #ddd;
-  color: #111;
 }
 
 .MuiTableCell-root {
@@ -53,18 +46,6 @@ body {
   padding: 0.6rem;
   border-radius: 20px;
   border: 1px solid #ccc;
-}
-
-.btn {
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 6px;
-  background-color: #facc15;
-  cursor: pointer;
-}
-
-.btn:hover {
-  background-color: #eab308;
 }
 
 .task-header {

@@ -79,7 +79,7 @@ export default function TaskDetailPage() {
     // --- MOBILE LAYOUT ---
     if (isMobile) {
         return (
-            <Box sx={{ pb: 4, backgroundColor: '#f4f5f7', minHeight: '100vh' }}>
+            <Box sx={{ pb: 4, backgroundColor: 'background.default', minHeight: '100vh' }}>
                 <Paper
                     elevation={0}
                     sx={{
@@ -173,9 +173,10 @@ export default function TaskDetailPage() {
                                 <Chip
                                     key={idx}
                                     label={tag}
-                                    size="small"
                                     color="primary"
-                                    sx={{ borderRadius: '4px', fontWeight: 500 }}
+                                    variant="outlined"
+                                    sx={{ borderRadius: '4px', fontWeight: 'medium' }}
+                                    size="small"
                                 />
                             ))}
                         </Paper>
@@ -218,30 +219,32 @@ export default function TaskDetailPage() {
 
     // --- DESKTOP LAYOUT ---
     return (
-        <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, margin: "0 auto", backgroundColor: '#f9f9f9', minHeight: '100vh' }}>
+        <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 1400, margin: "0 auto", backgroundColor: 'background.default', minHeight: '100vh' }}>
             <Paper
                 elevation={0}
                 sx={{
-                    p: 3, mb: 3, borderRadius: 4, background: "linear-gradient(135deg, #FFD700 0%, #FFC107 100%)",
-                    color: "black", boxShadow: '0 4px 20px rgba(255, 193, 7, 0.4)'
+                    p: 3, mb: 3, borderRadius: 3,
+                    background: "linear-gradient(135deg, #1E293B 0%, #334155 100%)",
+                    color: "white",
+                    boxShadow: '0 4px 20px rgba(15, 23, 42, 0.25)'
                 }}
             >
                 <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
                     <IconButton
                         onClick={() => navigate(-1)}
                         sx={{
-                            color: "black",
-                            backgroundColor: 'rgba(255,255,255,0.3)',
-                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.6)' }
+                            color: "inherit",
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.4)' }
                         }}
                     >
                         <ArrowBackIcon />
                     </IconButton>
-                    <Typography variant="h4" fontWeight="bold" sx={{ flexGrow: 1 }}>
+                    <Typography variant="h4" fontWeight="bold" sx={{ flexGrow: 1, color: '#FFFFFF' }}>
                         {todo.title}
                     </Typography>
                     {todo.isPinned && (
-                        <PushPinIcon sx={{ color: 'black' }} />
+                        <PushPinIcon sx={{ color: 'inherit' }} />
                     )}
                 </Stack>
 
@@ -249,23 +252,36 @@ export default function TaskDetailPage() {
 
                 <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" useFlexGap>
                     <Chip
-                        icon={<FlagIcon sx={{ fontSize: 16, color: 'black' }} />}
+                        icon={<FlagIcon sx={{ fontSize: 16 }} />}
                         label={todo.priority}
                         size="small"
-                        sx={{ bgcolor: "rgba(255,255,255,0.6)", color: "black", fontWeight: 'bold' }}
+                        sx={{
+                            bgcolor: "rgba(255,255,255,0.2)",
+                            color: "#FFFFFF",
+                            fontWeight: 'bold',
+                            '& .MuiChip-icon': { color: '#FFFFFF' }
+                        }}
                     />
                     <Chip
-                        icon={<CheckCircleIcon sx={{ fontSize: 16, color: 'black' }} />}
+                        icon={<CheckCircleIcon sx={{ fontSize: 16 }} />}
                         label={todo.status?.replace("_", " ")}
                         size="small"
-                        sx={{ bgcolor: "rgba(255,255,255,0.6)", color: "black" }}
+                        sx={{
+                            bgcolor: "rgba(255,255,255,0.2)",
+                            color: "#FFFFFF",
+                            '& .MuiChip-icon': { color: '#FFFFFF' }
+                        }}
                     />
                     {todo.dueDate && (
                         <Chip
-                            icon={<CalendarTodayIcon sx={{ fontSize: 16, color: 'black' }} />}
+                            icon={<CalendarTodayIcon sx={{ fontSize: 16 }} />}
                             label={new Date(todo.dueDate).toLocaleDateString("en-GB")}
                             size="small"
-                            sx={{ bgcolor: "rgba(255,255,255,0.6)", color: "black" }}
+                            sx={{
+                                bgcolor: "rgba(255,255,255,0.2)",
+                                color: "#FFFFFF",
+                                '& .MuiChip-icon': { color: '#FFFFFF' }
+                            }}
                         />
                     )}
                 </Stack>
@@ -277,7 +293,7 @@ export default function TaskDetailPage() {
                         <Card sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid #e0e0e0' }}>
                             <CardContent>
                                 <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                                    <NotesIcon sx={{ color: '#FFD700' }} />
+                                    <NotesIcon color="primary" />
                                     <Typography variant="h6" fontWeight="bold">
                                         Description
                                     </Typography>
@@ -292,7 +308,7 @@ export default function TaskDetailPage() {
                             <Card sx={{ borderRadius: 2, boxShadow: 'none', border: '1px solid #e0e0e0' }}>
                                 <CardContent>
                                     <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                                        <PlaylistAddCheckIcon sx={{ color: '#FFD700' }} />
+                                        <PlaylistAddCheckIcon color="primary" />
                                         <Typography variant="h6" fontWeight="bold">
                                             Subtasks
                                         </Typography>
@@ -362,7 +378,7 @@ export default function TaskDetailPage() {
                                     <>
                                         <Divider sx={{ my: 3 }} />
                                         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                                            <LabelIcon sx={{ color: '#FFD700' }} />
+                                            <LabelIcon color="primary" />
                                             <Typography variant="subtitle2" fontWeight="bold">
                                                 TAGS
                                             </Typography>
@@ -372,10 +388,9 @@ export default function TaskDetailPage() {
                                                 <Chip
                                                     key={idx}
                                                     label={tag}
-                                                    sx={{
-                                                        borderRadius: '4px', backgroundColor: '#FFF8E1', color: '#333',
-                                                        border: '1px solid #FFD700', fontWeight: 'medium'
-                                                    }}
+                                                    color="primary"
+                                                    variant="outlined"
+                                                    sx={{ borderRadius: '4px', fontWeight: 'medium' }}
                                                     size="small"
                                                 />
                                             ))}
